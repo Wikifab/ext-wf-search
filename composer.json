@@ -1,0 +1,6 @@
+{
+    "name": "wikifab/Wf-search",
+    "type": "mediawiki-extension",
+    "require": {
+    }
+}
