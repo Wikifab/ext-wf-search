@@ -1,7 +1,7 @@
 <?php
 
 class WikifabSearchResultFormatter {
-	
+
 	private $titleMatches = null;
 	private $textMatches = null;
 
@@ -64,7 +64,7 @@ class WikifabSearchResultFormatter {
 			}
 			$this->closeResultsContainer();
 		}
-		
+
 
 		if ( $num === 0 ) {
 			$this->displayNoResultMessage();
@@ -283,7 +283,7 @@ class WikifabSearchResultFormatter {
 
 		$page = WikiPage::factory( $mTitle );
 
-		$preloadContent = $page->getRawText();
+		$preloadContent = $page->getContent()->getWikitextForTransclusion();
 		$text = $page->getText();
 		$creator = $page->getCreator();
 
@@ -320,7 +320,7 @@ class WikifabSearchResultFormatter {
 		$wgScriptPath = $GLOBALS['wgScriptPath'];
 		$out = file_get_contents($this->template);
 		$content['ROOT_URL'] = $wgScriptPath . '/';
-		
+
 		foreach ($content as $key => $value) {
 
 			if($key == 'Main_Picture') {
