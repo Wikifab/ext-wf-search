@@ -328,6 +328,14 @@ class WikifabSearchResultFormatter {
 				$file = wfFindFile( $value );
 				if($file) {
 					$fileUrl = $file->getUrl();
+					// if possible, we use thumbnail
+					$params = ['width' => 400];
+
+					$mto = $file->transform( $params );
+					if ( $mto && !$mto->isError() ) {
+						// thumb Ok, change the URL to point to a thumbnail.
+						$fileUrl = wfExpandUrl( $mto->getUrl(), PROTO_RELATIVE );
+					}
 					$out = str_replace("{{" . $key . "::url}}", $fileUrl, $out);
 				}
 			}
