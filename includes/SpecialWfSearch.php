@@ -27,7 +27,7 @@
  * implements Special:Search - Run text & title search and display the output
  * @ingroup SpecialPage
  */
-class SpecialWfSearch extends SpecialPage {
+class SpecialWfSearch extends SpecialSearch {
 	/**
 	 * Current search profile. Search profile is just a name that identifies
 	 * the active search tab on the search page (content, discussions...)
@@ -68,7 +68,11 @@ class SpecialWfSearch extends SpecialPage {
 	const NAMESPACES_CURRENT = 'sense';
 
 	public function __construct() {
-		parent::__construct( 'WfSearch' );
+		// this is magic : we call sub parent contructor
+		// (SpecialSearch extends  SpecialPage)
+		//to call specialPage constructor without call SpecialSearch contructor
+		//(because this last one set the name of the special page)
+		SpecialPage::__construct( 'WfSearch' );
 	}
 
 	/**
@@ -353,7 +357,7 @@ class SpecialWfSearch extends SpecialPage {
 		$textMatches->free();
 
 
-		
+
 		$out->addHtml( "</div>" );
 
 		if ( $prevnext ) {
@@ -448,7 +452,7 @@ class SpecialWfSearch extends SpecialPage {
 	 *
 	 * @return array
 	 */
-	protected function powerSearchOptions() {
+	public function powerSearchOptions() {
 		$opt = array();
 		if ( $this->profile !== 'advanced' ) {
 			$opt['profile'] = $this->profile;

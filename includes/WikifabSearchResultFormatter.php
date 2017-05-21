@@ -284,7 +284,7 @@ class WikifabSearchResultFormatter {
 		$page = WikiPage::factory( $mTitle );
 
 		$preloadContent = $page->getContent()->getWikitextForTransclusion();
-		$text = $page->getText();
+		$text = $page->getContent();
 		$creator = $page->getCreator();
 
 
