@@ -9,8 +9,12 @@ class WikifabSearchResultFormatter {
 
 	private $out;
 
-	private $template;
+	private $template = null;
 
+	/**
+	 * deprecated, can be skipped
+	 * @param unknown $page
+	 */
 	public function init(&$page) {
 		$this->page = $page;
 
@@ -19,6 +23,13 @@ class WikifabSearchResultFormatter {
 
 	public function setTemplate($template) {
 		$this->template = $template;
+	}
+
+	public function getTemplate() {
+		if (  ! $this->template) {
+			$this->template = $GLOBALS['egChameleonLayoutFileSearchResult'];
+		}
+		return $this->template;
 	}
 
 	public function setTerm(&$term) {
@@ -33,6 +44,19 @@ class WikifabSearchResultFormatter {
 		$this->textMatches = $matches;
 	}
 
+	/**
+	 * Todo : should not use global var
+	 * @return FauxRequest|\FauxRequest|WebRequest|DerivativeRequest
+	 */
+	public function getContext() {
+		global $wgRequest;
+		return $wgRequest;
+	}
+
+	/**
+	 * deprecated, was for mw_1.28
+	 * @param unknown $out
+	 */
 	public function render(&$out) {
 		$this->out = $out;
 
@@ -126,6 +150,7 @@ class WikifabSearchResultFormatter {
 	 * @return string
 	 */
 	public function showHit( $result, $terms ) {
+		global $wgUser;
 
 		$profile = new ProfileSection( __METHOD__ );
 
@@ -154,7 +179,7 @@ class WikifabSearchResultFormatter {
 		//If page content is not readable, just return the title.
 		//This is not quite safe, but better than showing excerpts from non-readable pages
 		//Note that hiding the entry entirely would screw up paging.
-		if ( $this->page && !$title->userCan( 'read', $this->page->getUser() ) ) {
+		if ( !$title->userCan( 'read', $wgUser ) ) {
 			return "<li>{$link}</li>\n";
 		}
 
@@ -180,7 +205,8 @@ class WikifabSearchResultFormatter {
 			}
 
 			$redirect = "<span class='searchalttitle'>" .
-				$this->msg( 'search-redirect' )->rawParams(
+
+				wfMessage( 'search-redirect' )->rawParams(
 					Linker::linkKnown( $redirectTitle, $redirectText ) )->text() .
 				"</span>";
 		}
@@ -193,7 +219,7 @@ class WikifabSearchResultFormatter {
 			}
 
 			$section = "<span class='searchalttitle'>" .
-				$this->page->msg( 'search-section' )->rawParams(
+				wfMessage( 'search-section' )->rawParams(
 					Linker::linkKnown( $sectionTitle, $sectionText ) )->text() .
 				"</span>";
 		}
@@ -201,23 +227,23 @@ class WikifabSearchResultFormatter {
 		// format text extract
 		$extract = "<div class='searchresult'>" . $result->getTextSnippet( $terms ) . "</div>";
 
-		$lang = $this->page->getLanguage();
+		$lang = $this->getContext()->getLanguage();
 
 		// format description
 		$byteSize = $result->getByteSize();
 		$wordCount = $result->getWordCount();
 		$timestamp = $result->getTimestamp();
-		$size = $this->page->msg( 'search-result-size', $lang->formatSize( $byteSize ) )
+		$size = wfMessage( 'search-result-size', $lang->formatSize( $byteSize ) )
 			->numParams( $wordCount )->escaped();
 
 		if ( $title->getNamespace() == NS_CATEGORY ) {
 			$cat = Category::newFromTitle( $title );
-			$size = $this->page->msg( 'search-result-category-size' )
+			$size = wfMessage( 'search-result-category-size' )
 				->numParams( $cat->getPageCount(), $cat->getSubcatCount(), $cat->getFileCount() )
 				->escaped();
 		}
 
-		$date = $lang->userTimeAndDate( $timestamp, $this->page->getUser() );
+		$date = $lang->userTimeAndDate( $timestamp, $wgUser);
 
 		$fileMatch = '';
 		// Include a thumbnail for media files...
@@ -226,12 +252,12 @@ class WikifabSearchResultFormatter {
 			$img = $img ?: wfFindFile( $title );
 			if ( $result->isFileMatch() ) {
 				$fileMatch = "<span class='searchalttitle'>" .
-					$this->page->msg( 'search-file-match' )->escaped() . "</span>";
+					wfMessage( 'search-file-match' )->escaped() . "</span>";
 			}
 			if ( $img ) {
 				$thumb = $img->transform( array( 'width' => 120, 'height' => 120 ) );
 				if ( $thumb ) {
-					$desc = $this->page->msg( 'parentheses' )->rawParams( $img->getShortDesc() )->escaped();
+					$desc = wfMessage( 'parentheses' )->rawParams( $img->getShortDesc() )->escaped();
 					// Float doesn't seem to interact well with the bullets.
 					// Table messes up vertical alignment of the bullets.
 					// Bullets are therefore disabled (didn't look great anyway).
@@ -318,7 +344,7 @@ class WikifabSearchResultFormatter {
 
 	public function formatResult($content) {
 		$wgScriptPath = $GLOBALS['wgScriptPath'];
-		$out = file_get_contents($this->template);
+		$out = file_get_contents($this->getTemplate());
 		$content['ROOT_URL'] = $wgScriptPath . '/';
 
 		foreach ($content as $key => $value) {

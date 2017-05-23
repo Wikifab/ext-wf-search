@@ -3,7 +3,7 @@
 if ( !defined( 'MEDIAWIKI' ) ) {
 	exit( 1 );
 }
- 
+
 $wgExtensionCredits['specialpage'][] = array(
 	'path' => __FILE__,
 	'name' => 'WfSearch',
@@ -13,8 +13,12 @@ $wgExtensionCredits['specialpage'][] = array(
 	'version' => '0.1.0',
 );
 $wgAutoloadClasses['SpecialWfSearch'] = __DIR__ . '/includes/SpecialWfSearch.php'; # Location of the SpecialWfSearch class (Tell MediaWiki to load this file)
-$wgAutoloadClasses['WikifabSearchResultFormatter'] = __DIR__ . '/includes/WikifabSearchResultFormatter.php'; # Location of the WikifabSearchResultFormatter class 
+$wgAutoloadClasses['Wikifab\\Widget\\Search\\WikifabSimpleSearchResultWidget'] = __DIR__ . '/includes/Widget/Search/WikifabSearchResultWidget.php';
+$wgAutoloadClasses['Wikifab\\Widget\\Search\\WikifabFullSearchResultWidget'] = __DIR__ . '/includes/Widget/Search/WikifabFullSearchResultWidget.php';
+$wgAutoloadClasses['Wikifab\\Widget\\Search\\WikifabBasicSearchResultSetWidget'] = __DIR__ . '/includes/Widget/Search/WikifabBasicSearchResultSetWidget.php';
+$wgAutoloadClasses['Wikifab\\Widget\\Search\\WikifabSearchFormWidget'] = __DIR__ . '/includes/Widget/Search/WikifabSearchFormWidget.php';
+$wgAutoloadClasses['WikifabSearchResultFormatter'] = __DIR__ . '/includes/WikifabSearchResultFormatter.php'; # Location of the WikifabSearchResultFormatter class
 $wgAutoloadClasses['WfTutorialUtils'] = __DIR__ . '/includes/WfTutorialUtils.php'; # tools for using tutorial forms pages
 $wgMessagesDirs['WfSearch'] = array( __DIR__ . "/i18n"); # Location of localisation files (Tell MediaWiki to load them)
-$wgExtensionMessagesFiles['WfSearchAlias'] = __DIR__ . '/WfSearch.alias.php'; # Location of an aliases file 
+$wgExtensionMessagesFiles['WfSearchAlias'] = __DIR__ . '/WfSearch.alias.php'; # Location of an aliases file
 $wgSpecialPages['WfSearch'] = 'SpecialWfSearch'; # Tell MediaWiki about the new special page and its class name
