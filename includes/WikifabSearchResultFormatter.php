@@ -277,7 +277,7 @@ class WikifabSearchResultFormatter {
 	 *
 	 */
 	public function getPageDetails($result) {
-		global $sfgFormPrinter;
+		global $sfgFormPrinter, $wgLang;;
 
 		$mTitle = $result->getTitle();
 
@@ -287,6 +287,29 @@ class WikifabSearchResultFormatter {
 		$text = $page->getContent();
 		$creator = $page->getCreator();
 
+		$displayTitle = $mTitle->getText();
+		$translatedLang = false;
+		$pageCodeLang = $mTitle->getPageLanguage()->getCode();
+
+		// For translated pages : $creator must be changed to match the original Creator
+		// or it will ofen display "fussybot" or one of the translators
+		if (class_exists('TranslatablePage')) {
+			$sourcePageTranslatable = \TranslatablePage::isTranslationPage( $mTitle );
+			//var_dump($page); echo "<br/>";
+			if ($sourcePageTranslatable) {
+				$sourcePage = WikiPage::factory( $sourcePageTranslatable->getTitle() );
+				// if this is a translated page, creator is got from the original one :
+				$creator = $sourcePage->getCreator();
+				// get the translated Title if any :
+				$translatedLang = $pageCodeLang;
+				$displayTitleTranslated = $sourcePageTranslatable->getPageDisplayTitle( $pageCodeLang );
+				if($displayTitleTranslated) {
+					$displayTitle = $displayTitleTranslated;
+				} else {
+					$displayTitle = $sourcePageTranslatable->getTitle()->getText();
+				}
+			}
+		}
 
 		// remplace template :
 		$preloadContent  = str_replace('{{Tuto Details', '{{Tuto SearchResult', $preloadContent);
@@ -300,8 +323,11 @@ class WikifabSearchResultFormatter {
 		if( ! $data ) {
 			return '';
 		}
+		$pageLang = $mTitle->getPageLanguage()->getCode();
 
-		$data['title'] =$mTitle->getText();
+		$data['title'] = $displayTitle;
+		$data['codeLang'] = $pageLang == $wgLang->getCode() ? '' : $pageLang ;
+		$data['translatedCodeLang'] = $translatedLang;
 		$data['creatorId'] = $creator->getId();
 		$data['creatorUrl'] = $creator->getUserPage()->getLinkURL();
 		$data['creatorName'] = $creator->getName();
@@ -340,6 +366,16 @@ class WikifabSearchResultFormatter {
 				}
 			}
 			$out = str_replace("{{" . $key . "}}", $value, $out);
+			if (strpos($out, "{{int:" . $key . "}}") !== false) {
+				$values = explode(',', $value);
+				$intValues = [];
+				$intKeyPrefix = 'wf-propertyvalue-'. str_replace('-', '', strtolower($key)).'-';
+				foreach ($values as $v) {
+					$intValues[] = wfMessage( $intKeyPrefix . trim($v));
+				}
+				$intValue = implode(', ', $intValues);
+				$out = str_replace("{{int:" . $key . "}}", $intValue, $out);
+			}
 		}
 		return $out;
 	}
