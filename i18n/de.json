@@ -1,0 +1,11 @@
+{
+    "@metadata": {
+        "authors": [
+            "Pierre Boutet"
+        ]
+    },
+    "wfsearch": "Wikifab-Suche",
+    "wfsearch-desc": "Suchseite für Tutorials",
+    "wfsearch-summary": "Finde dein Tutorial",
+    "wfsearch-newTutorial": "Erstelle ein Tutorial"
+}
