@@ -1,5 +1,5 @@
 {
-    "name": "wikifab/Wf-search",
+    "name": "wikifab/wf-search",
     "type": "mediawiki-extension",
     "require": {
     }
